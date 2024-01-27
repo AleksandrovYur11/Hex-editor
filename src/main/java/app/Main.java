@@ -2,11 +2,8 @@ package app;
 
 import gui.HexTable;
 import gui.Tools;
-import service.impl.HexTableServiceImpl;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
 import java.awt.*;
 
 public class Main {
@@ -27,62 +24,14 @@ public class Main {
 
     private void createHexTable() {
 //        HexTable newHexTable = new HexTable();
-//        JTable table = newHexTable.getHexTable();
-//        // Пример добавления данных в таблицу
-//        Object[][] data = {
-//                {"1", "John Doe", "30"},
-//                {"2", "Jane Doe", "25"},
-//                {"3", "Bob Smith", "40"}
-//        };
-//
-//        String[] columnNames = {"ID", "Name", "Age"};
-//        DefaultTableModel model = new DefaultTableModel(data, columnNames);
-//        table.setModel(model);
-//
-//        table.getTableHeader().setReorderingAllowed(false);
-//        table.getTableHeader().setResizingAllowed(false);
-//        table.setCellSelectionEnabled(true);
-//        table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-//
-//        // Пример настройки модели выбора столбцов
-//        TableColumnModel tableColumnModel = table.getColumnModel();
-//        ListSelectionModel tableColumnSelectionModel = tableColumnModel.getSelectionModel();
-//        tableColumnSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 //        this.hexTable = newHexTable;
-//        this.mainPanel.add(hexTable.getTablePanel(), BorderLayout.CENTER);
-//        HexTableServiceImpl hexTableService = new HexTableServiceImpl(hexTable);
-        //-----------------------
-
-        HexTable myTable = new HexTable();
-        JTable table = myTable.getHexTable();
-
-        // Создаем модель данных
-        DefaultTableModel model = new DefaultTableModel();
-
-        model.addColumn("Address");
-        for (int i = 0; i < 16; i++) {
-            model.addColumn(String.format("%X", i));
-        }
-
-//         Добавляем строки с данными
-        for (int i = 0; i < 16; i++) {
-            Object[] columnData = {String.format("%X", i), "", ""};  // Значение Address в hex-формате
-            model.addColumn(columnData);
-        }
-
-
-        // Устанавливаем модель данных в таблицу
-        table.setModel(model);
-
-        // Настройка внешнего вида таблицы
-        table.getTableHeader().setReorderingAllowed(false);
-        table.getTableHeader().setResizingAllowed(false);
-        table.setCellSelectionEnabled(true);
-        table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        this.hexTable = myTable;
-        this.mainPanel.add(hexTable.getTablePanel(), BorderLayout.CENTER);
-        HexTableServiceImpl hexTableService = new HexTableServiceImpl(hexTable);
+//        this.mainPanel.add(newHexTable.getTablePanel(), BorderLayout.SOUTH);
+        HexTable newHexTable = new HexTable();
+        this.hexTable = newHexTable;
+//        JScrollPane scrollPane = new JScrollPane(newHexTable.getTablePanel());
+        this.mainPanel.add(newHexTable.getTablePanel());
     }
+
 
 
     private void createMainFrame() {

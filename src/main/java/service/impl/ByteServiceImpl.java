@@ -12,6 +12,4 @@ public class ByteServiceImpl {
         fis.close();
         return fileBytes;
     }
-
-
 }

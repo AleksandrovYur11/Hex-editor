@@ -49,7 +49,7 @@ public class Tools {
                 File selectedFile = fileChooser.getSelectedFile();
                 try {
                     byte[] fileBytes = byteServiceImpl.readFileToByteArray(selectedFile);
-                    hexTableServiceImpl.displayHexData(fileBytes, this.hexTable.getHexTable());
+                    hexTableServiceImpl.displayHexData(fileBytes);
 //                    String hexRepresentation = getHexRepresentation(fileBytes);
 //                    hexTextArea.setText(hexRepresentation);
                 } catch (IOException ex) {
