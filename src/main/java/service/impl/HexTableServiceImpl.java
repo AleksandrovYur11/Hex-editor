@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.Vector;
 
 public class HexTableServiceImpl {
     private HexTable hexTable;
@@ -115,14 +116,170 @@ public class HexTableServiceImpl {
                 rowData[rowData.length - 1] = String.format("%02X", fileBytes[i + j]);
             }
 
+
             tableModel.addRow(rowData);
 
             lineCounter += 16;
         }
         table.setModel(tableModel);
         setTableCellRenderer();
-        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     }
+
+//    public void addColumns(int numberOfColumns) {
+//        JTable table = this.hexTable.getHexTable();
+//        DefaultTableModel model = (DefaultTableModel) table.getModel();
+//
+//        int rowCount = model.getRowCount();
+//        int columnCount = model.getColumnCount() - 1;
+//
+//        // Создаем новый вектор столбцов
+//        Vector<String> newColumns = new Vector<>();
+//        newColumns.add("Address");
+//
+//        int lineCounter = 0;
+//
+//        for (int i = 0; i < columnCount + numberOfColumns; i++) {
+//            newColumns.add(String.format("%X", i));
+//        }
+//
+//        // Создаем новую модель с новыми столбцами
+//        DefaultTableModel newModel = new DefaultTableModel(newColumns, 0);
+////        Vector<Object> rowData = new Vector<>();
+//
+//        for (int i = 0; i < rowCount; i++) {
+//
+//            String address = String.format("%08X", lineCounter) + ": ";
+//
+//            String[] rowData = {address};
+//            for (int j = 0; j < columnCount; j++) {
+//                rowData[j] = (String) model.getValueAt(i, j);
+//            }
+//            newModel.addRow(rowData);
+//        }
+//
+////        // Переносим данные из старой модели в новую
+////        for (int i = 1; i < rowCount; i++) {
+//////            Vector<Object> rowData = new Vector<>();
+//////            rowData.add(model.getValueAt(i, 0)); // Переносим Address
+////
+////            // Переносим данные из старой модели в новую
+////            for (int j = 1; j < columnCount; j++) {
+////                rowData.add(model.getValueAt(i, j));
+////            }
+////
+//////            // Добавляем пустые значения для новых столбцов
+//////            for (int j = columnCount; j < newColumns.size(); j++) {
+//////                rowData.add(null);
+//////            }
+////
+////            newModel.addRow(rowData);
+////        }
+//
+//        // Устанавливаем новую модель
+//        table.setModel(newModel);
+//        setTableCellRenderer();
+//
+//
+////        // Устанавливаем одинаковую ширину столбцов
+////        int columnWidth = table.getPreferredSize().width / newModel.getColumnCount();
+////        for (int i = 0; i < newModel.getColumnCount(); i++) {
+////            table.getColumnModel().getColumn(i).setPreferredWidth(columnWidth);
+////        }
+////
+////        // Добавляем горизонтальный скролл
+////        JScrollPane scrollPane = (JScrollPane) table.getParent().getParent();
+////        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+//    }
+
+
+//    public void addColumns(int numberOfColumns) {
+//        JTable table = this.hexTable.getHexTable();
+//        DefaultTableModel model = (DefaultTableModel) table.getModel();
+//
+//        int rowCount = model.getRowCount();
+//        int columnCount = model.getColumnCount() - 1; // Учитываем только данные, а не Address
+//
+//        // Создаем новый вектор столбцов
+//        Vector<String> newColumns = new Vector<>();
+//        newColumns.add("Address");
+//
+//        for (int i = 0; i < columnCount + numberOfColumns; i++) {
+//            newColumns.add(String.format("%X", i));
+//        }
+//
+//        // Создаем новую модель с новыми столбцами
+//        DefaultTableModel newModel = new DefaultTableModel(newColumns, 0);
+//
+//        for (int i = 0; i < rowCount; i++) {
+//            String address = String.format("%08X", i * 16) + ": "; // Обновляем адрес
+//
+//            String[] rowData = {address};
+//            for (int j = 1; j < columnCount; j++) {
+//                rowData[j] = (String) model.getValueAt(i, 0);
+//            }
+//            newModel.addRow(rowData);
+//        }
+//
+//        // Устанавливаем новую модель
+//        table.setModel(newModel);
+//        setTableCellRenderer();
+//    }
+
+    public void addColumns(int numberOfColumns) {
+        JTable table = this.hexTable.getHexTable();
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+
+        int rowCount = model.getRowCount();
+        int columnCount = model.getColumnCount() - 1; // Учитываем только данные, а не Address
+
+        // Создаем новый вектор столбцов
+        Vector<String> newColumns = new Vector<>();
+        newColumns.add("Address");
+
+        for (int i = 0; i < columnCount + numberOfColumns; i++) {
+            newColumns.add(String.format("%X", i));
+        }
+
+        // Создаем новую модель с новыми столбцами
+        DefaultTableModel newModel = new DefaultTableModel(newColumns, 0);
+
+        Vector<String> rowData = new Vector<>();
+        for (int i = 0; i < rowCount; i++) {
+//            rowData[i] = String.format("%08X", i * 16) + ": ";
+            for (int j = 1; j <= columnCount; j++) {
+                rowData.add((String) model.getValueAt(i, j));
+            }
+//            String[] newRowData = {address};
+//
+//            for (int k = 0; i + k <  && k < columnCount + numberOfColumns - 1; k++) {
+//                newRowData = Arrays.copyOf(rowData, rowData.length + 1);
+//                newRowData[newRowData.length - 1] = rowData[k]; // Пустые значения для новых столбцов
+//            }
+
+//            newModel.addRow(newRowData);
+        }
+
+
+        int newRowCount = (int) Math.ceil((double) rowData.size() / (model.getColumnCount() - 1 + numberOfColumns));
+        int index = 0;
+        for (int i = 0; i < newRowCount; i++) {
+            Vector<String> newRowData = new Vector<>();
+            newRowData.add(String.format("%08X", i * 16) + ": ");
+            for (int k = 0; k < model.getColumnCount() - 1 + numberOfColumns && index < rowData.size(); k++) {
+//                newRowData = Arrays.copyOf(rowData, rowData.size() + 1);
+                newRowData.add(rowData.get(index)); // Пустые значения для новых столбцов
+                index = index + 1;
+            }
+            newModel.addRow(newRowData);
+        }
+
+
+        // Устанавливаем новую модель
+        table.setModel(newModel);
+        setTableCellRenderer();
+        table.repaint();
+    }
+
 
     public void setTableCellRenderer() {
         JTable table = this.hexTable.getHexTable();
