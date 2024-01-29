@@ -23,21 +23,22 @@ public class Main {
     }
 
     private void createHexTable() {
-//        HexTable newHexTable = new HexTable();
-//        this.hexTable = newHexTable;
-//        this.mainPanel.add(newHexTable.getTablePanel(), BorderLayout.SOUTH);
         HexTable newHexTable = new HexTable();
         this.hexTable = newHexTable;
-//        JScrollPane scrollPane = new JScrollPane(newHexTable.getTablePanel());
-        this.mainPanel.add(newHexTable.getTablePanel());
-    }
+        // Получаем размеры первой панели
+        Dimension originalSize = this.mainPanel.getSize();
+        JPanel tablePanel = newHexTable.getTablePanel();
+// Устанавливаем размеры второй панели
+        tablePanel.setSize(originalSize);
 
+        //        JScrollPane scrollPane = new JScrollPane(newHexTable.getTablePanel());
+        this.mainPanel.add(tablePanel);
+    }
 
 
     private void createMainFrame() {
         JFrame frame = new JFrame("Hex editor tool");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setContentPane(this.mainPanel);
         frame.pack();
         frame.setVisible(true);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -49,6 +50,8 @@ public class Main {
 
         // Установка положения фрейма по центру экрана
         frame.setLocationRelativeTo(null);
+        frame.setContentPane(this.mainPanel);
+
     }
 
     private void createToolsManager() {

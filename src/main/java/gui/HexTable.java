@@ -1,7 +1,5 @@
 package gui;
 
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +16,7 @@ import java.awt.event.*;
 public class HexTable {
     private JPanel tablePanel;
     private JTable hexTable;
-    private JScrollPane columnHeader;
+    private JScrollPane scrollTable;
 
     private Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
@@ -26,8 +24,10 @@ public class HexTable {
     public HexTable() {
         $$$setupUI$$$();
         this.hexTable.getTableHeader().setReorderingAllowed(false);
-//        this.hexTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        this.hexTable.setRowHeight(30);
         this.hexTable.setCellSelectionEnabled(true);
+        this.hexTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
         this.hexTable.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -66,32 +66,33 @@ public class HexTable {
         JPopupMenu popupMenu = new JPopupMenu();
 
         JMenuItem copyItem = new JMenuItem("Копировать");
+        popupMenu.add(copyItem);
+
         copyItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 handleCopy();
             }
         });
-        popupMenu.add(copyItem);
 
         JMenuItem pasteItem = new JMenuItem("Вставить");
+        popupMenu.add(pasteItem);
         pasteItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 handlePaste();
             }
         });
-        popupMenu.add(pasteItem);
 
         JMenuItem deleteItem = new JMenuItem("Удалить");
+        popupMenu.add(deleteItem);
+
         deleteItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 handleDelete();
             }
         });
-
-        popupMenu.add(deleteItem);
 
         popupMenu.show(e.getComponent(), e.getX(), e.getY());
     }
@@ -178,11 +179,12 @@ public class HexTable {
      */
     private void $$$setupUI$$$() {
         tablePanel = new JPanel();
-        tablePanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        columnHeader = new JScrollPane();
-        tablePanel.add(columnHeader, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        tablePanel.setLayout(new BorderLayout(0, 0));
+        scrollTable = new JScrollPane();
+        tablePanel.add(scrollTable, BorderLayout.CENTER);
         hexTable = new JTable();
-        columnHeader.setViewportView(hexTable);
+        hexTable.setAutoResizeMode(4);
+        scrollTable.setViewportView(hexTable);
     }
 
     /**
@@ -191,4 +193,9 @@ public class HexTable {
     public JComponent $$$getRootComponent$$$() {
         return tablePanel;
     }
+
+    //    private void createUIComponents() {
+//        this.scrollTable = new JScrollPane(this.hexTable);
+//        scrollTable.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+//    }
 }

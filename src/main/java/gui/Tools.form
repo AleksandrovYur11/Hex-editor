@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="gui.Tools">
   <grid id="27dc6" binding="toolBarPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="537" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -11,28 +11,30 @@
         <constraints border-constraint="North"/>
         <properties/>
         <border type="none"/>
-        <children/>
+        <children>
+          <component id="18d4c" class="javax.swing.JButton" binding="addColumn">
+            <constraints/>
+            <properties>
+              <hideActionText value="false"/>
+              <horizontalAlignment value="0"/>
+              <text value="Добавить стобцы"/>
+              <verticalAlignment value="0"/>
+            </properties>
+          </component>
+          <component id="87f5a" class="javax.swing.JButton" binding="addRow">
+            <constraints/>
+            <properties>
+              <text value="Добавить строки"/>
+            </properties>
+          </component>
+          <component id="bb276" class="javax.swing.JButton" binding="seacrhOnByte">
+            <constraints/>
+            <properties>
+              <text value="Поиск по байту"/>
+            </properties>
+          </component>
+        </children>
       </toolbar>
-      <component id="18d4c" class="javax.swing.JButton" binding="addColumn">
-        <constraints border-constraint="West"/>
-        <properties>
-          <horizontalAlignment value="0"/>
-          <text value="Добавить стобцы"/>
-          <verticalAlignment value="0"/>
-        </properties>
-      </component>
-      <component id="87f5a" class="javax.swing.JButton" binding="addRow">
-        <constraints border-constraint="Center"/>
-        <properties>
-          <text value="Добавить строки"/>
-        </properties>
-      </component>
-      <component id="bb276" class="javax.swing.JButton" binding="seacrhOnByte">
-        <constraints border-constraint="East"/>
-        <properties>
-          <text value="Поиск по байту"/>
-        </properties>
-      </component>
     </children>
   </grid>
 </form>

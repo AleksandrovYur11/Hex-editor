@@ -10,13 +10,18 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
 
+
 @Getter
 @Setter
 public class Tools {
+
+    private File openedFile;
     private JPanel toolBarPanel;
     private JToolBar toolBar;
     private JButton addColumn;
@@ -33,6 +38,7 @@ public class Tools {
         this.byteServiceImpl = new ByteServiceImpl();
         this.hexTableServiceImpl = new HexTableServiceImpl(hexTable);
         $$$setupUI$$$();
+        this.toolBar.setFloatable(false);
 
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("Файл");
@@ -46,61 +52,77 @@ public class Tools {
         menuBar.add(fileMenu);
         toolBar.add(menuBar, BorderLayout.WEST);
 
-        openItem.addActionListener(actionEvent -> {
-            JFileChooser fileChooser = new JFileChooser();
-            int returnValue = fileChooser.showOpenDialog(null);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                try {
-                    byte[] fileBytes = byteServiceImpl.readFileToByteArray(selectedFile);
-                    hexTableServiceImpl.displayHexData(fileBytes);
-//                    String hexRepresentation = getHexRepresentation(fileBytes);
-//                    hexTextArea.setText(hexRepresentation);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+        openItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int returnValue = fileChooser.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    openedFile = fileChooser.getSelectedFile(); // Сохранение открытого файла
+                    try {
+                        byte[] fileBytes = byteServiceImpl.readFileToByteArray(openedFile);
+                        hexTableServiceImpl.displayHexData(fileBytes);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         });
 
-        exitItem.addActionListener(actionEvent -> System.exit(0));
+        exitItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
 
+        saveItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    // Получите массив байтов из таблицы
+                    byte[] bytesArray = hexTableServiceImpl.getBytesArray();
 
-//        saveItem.addActionListener(actionEvent -> {
-//            JFileChooser fileChooser = new JFileChooser();
-//            int returnValue = fileChooser.showSaveDialog(null);
-//            if (returnValue == JFileChooser.APPROVE_OPTION) {
-//                File selectedFile = fileChooser.getSelectedFile();
-//                try {
-//                    BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile));
-//                    writer.write(hexTextArea.getText());
-//                    writer.close();
-//                } catch (IOException ex) {
-//                    ex.printStackTrace();
-//                }
-//            }
-//        });
+                    // Сохраните массив байтов в файл
+                    byteServiceImpl.saveByteArrayToFile(bytesArray, openedFile.getAbsolutePath());
+
+                    System.out.println("Данные успешно сохранены в файл.");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла.");
+                }
+            }
+        });
+
 
         addColumn.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Запрашиваем у пользователя количество столбцов
-                String columnsCountString = JOptionPane.showInputDialog("Введите количество столбцов для добавления:");
+                boolean isValidInput = false;
+                while (!isValidInput) {
+                    String columnsCountString = JOptionPane.showInputDialog("Введите количество столбцов для добавления:");
+                    try {
 
-                try {
-                    // Пробуем преобразовать введенную строку в число
-                    int columnsCount = Integer.parseInt(columnsCountString);
-                    if (columnsCount > 0) {
-                        // Вызываем метод добавления столбцов при правильном вводе
-                        hexTableServiceImpl.addColumns(columnsCount);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Пожалуйста, введите положительное число.");
+                        if (columnsCountString == null) {
+                            break;
+                        }
+                        // Пробуем преобразовать введенную строку в число
+                        int columnsCount = Integer.parseInt(columnsCountString);
+                        if (columnsCount > 0) {
+                            // Вызываем метод добавления столбцов при правильном вводе
+                            hexTableServiceImpl.addColumns(columnsCount);
+                            isValidInput = true;
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Введите положительное число.");
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(null, "Введите целое число.");
                     }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Пожалуйста, введите корректное число.");
                 }
             }
         });
-
     }
 
 //    public void addColumns(int numberOfColumns) {
@@ -164,8 +186,6 @@ public class Tools {
 //    }
 
 
-
-
     /**
      * Method generated by IntelliJ IDEA GUI Designer
      * >>> IMPORTANT!! <<<
@@ -179,16 +199,17 @@ public class Tools {
         toolBar = new JToolBar();
         toolBarPanel.add(toolBar, BorderLayout.NORTH);
         addColumn = new JButton();
+        addColumn.setHideActionText(false);
         addColumn.setHorizontalAlignment(0);
         addColumn.setText("Добавить стобцы");
         addColumn.setVerticalAlignment(0);
-        toolBarPanel.add(addColumn, BorderLayout.WEST);
+        toolBar.add(addColumn);
         addRow = new JButton();
         addRow.setText("Добавить строки");
-        toolBarPanel.add(addRow, BorderLayout.CENTER);
+        toolBar.add(addRow);
         seacrhOnByte = new JButton();
         seacrhOnByte.setText("Поиск по байту");
-        toolBarPanel.add(seacrhOnByte, BorderLayout.EAST);
+        toolBar.add(seacrhOnByte);
     }
 
     /**
