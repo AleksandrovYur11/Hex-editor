@@ -11,29 +11,7 @@
         <constraints border-constraint="North"/>
         <properties/>
         <border type="none"/>
-        <children>
-          <component id="18d4c" class="javax.swing.JButton" binding="addColumn">
-            <constraints/>
-            <properties>
-              <hideActionText value="false"/>
-              <horizontalAlignment value="0"/>
-              <text value="Добавить стобцы"/>
-              <verticalAlignment value="0"/>
-            </properties>
-          </component>
-          <component id="87f5a" class="javax.swing.JButton" binding="addRow">
-            <constraints/>
-            <properties>
-              <text value="Добавить строки"/>
-            </properties>
-          </component>
-          <component id="bb276" class="javax.swing.JButton" binding="seacrhOnByte">
-            <constraints/>
-            <properties>
-              <text value="Поиск по байту"/>
-            </properties>
-          </component>
-        </children>
+        <children/>
       </toolbar>
     </children>
   </grid>

@@ -18,8 +18,6 @@ public class CustomCellEditor extends AbstractCellEditor implements TableCellEdi
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Здесь вы можете открыть диалоговое окно или что-то еще для редактирования значения
-                // Например, JOptionPane.showInputDialog
                 editedValue = JOptionPane.showInputDialog("Enter new value:");
                 fireEditingStopped();
             }
@@ -33,9 +31,8 @@ public class CustomCellEditor extends AbstractCellEditor implements TableCellEdi
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-        // Установите значение редактора, например, текст на кнопке
         button.setText(String.valueOf(value));
-        editedValue = null; // Сбросите предыдущее редактированное значение
+        editedValue = null;
         return button;
     }
 }

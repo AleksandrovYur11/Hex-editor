@@ -16,7 +16,7 @@ public class Main {
 
     public Main() {
         this.mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
+        this.mainPanel.setLayout(new BorderLayout());
         createHexTable();
         createToolsManager();
         createMainFrame();
@@ -25,10 +25,10 @@ public class Main {
     private void createHexTable() {
         HexTable newHexTable = new HexTable();
         this.hexTable = newHexTable;
-        // Получаем размеры первой панели
+
         Dimension originalSize = this.mainPanel.getSize();
         JPanel tablePanel = newHexTable.getTablePanel();
-// Устанавливаем размеры второй панели
+
         tablePanel.setSize(originalSize);
 
         //        JScrollPane scrollPane = new JScrollPane(newHexTable.getTablePanel());
@@ -43,27 +43,21 @@ public class Main {
         frame.setVisible(true);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-        // Установка размера фрейма на половину экрана
         int width = screenSize.width / 2;
         int height = screenSize.height / 2;
         frame.setSize(width, height);
 
-        // Установка положения фрейма по центру экрана
         frame.setLocationRelativeTo(null);
         frame.setContentPane(this.mainPanel);
 
     }
 
     private void createToolsManager() {
-        Tools toolsManager = new Tools(hexTable);  // Передача hexTable в конструктор Tools
+        Tools toolsManager = new Tools(hexTable);
         mainPanel.add(toolsManager.getToolBarPanel(), BorderLayout.NORTH);
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new Main();
-            }
-        });
+        SwingUtilities.invokeLater(Main::new);
     }
 }

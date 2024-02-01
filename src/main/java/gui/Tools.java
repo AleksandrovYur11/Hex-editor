@@ -6,15 +6,11 @@ import service.impl.ByteServiceImpl;
 import service.impl.HexTableServiceImpl;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.Vector;
 
 
 @Getter
@@ -24,13 +20,10 @@ public class Tools {
     private File openedFile;
     private JPanel toolBarPanel;
     private JToolBar toolBar;
-    private JButton addColumn;
-    private JButton addRow;
-    private JButton seacrhOnByte;
     private ByteServiceImpl byteServiceImpl;
     private HexTableServiceImpl hexTableServiceImpl;
 
-    private HexTable hexTable;  // Добавлено поле
+    private HexTable hexTable;
 
 
     public Tools(HexTable hexTable) {
@@ -40,19 +33,109 @@ public class Tools {
         $$$setupUI$$$();
         this.toolBar.setFloatable(false);
 
-        JMenuBar menuBar = new JMenuBar();
+        JMenuBar fileMenuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("Файл");
-        JMenuItem openItem = new JMenuItem("Открыть");
-        JMenuItem saveItem = new JMenuItem("Сохранить");
-        JMenuItem exitItem = new JMenuItem("Выход");
+        JMenuItem openFileItem = new JMenuItem("Открыть");
+        JMenuItem saveFileItem = new JMenuItem("Сохранить");
+        JMenuItem saveAsFileItem = new JMenuItem("Сохранить как");
+        JMenuItem exitAppItem = new JMenuItem("Выход");
 
-        fileMenu.add(openItem);
-        fileMenu.add(saveItem);
-        fileMenu.add(exitItem);
-        menuBar.add(fileMenu);
-        toolBar.add(menuBar, BorderLayout.WEST);
+        saveFileItem.setEnabled(false);
+        saveAsFileItem.setEnabled(false);
 
-        openItem.addActionListener(new ActionListener() {
+        fileMenu.add(openFileItem);
+        fileMenu.add(saveFileItem);
+        fileMenu.add(saveAsFileItem);
+        fileMenu.addSeparator();
+        fileMenu.add(exitAppItem);
+        fileMenuBar.add(fileMenu);
+
+
+        // Создание меню "Инструменты"
+        JMenuBar actionMenuBar = new JMenuBar();
+        JMenu actionMenu = new JMenu("Данные");
+        JMenu pasteMenu = new JMenu("Вставить");
+
+        JMenuItem pasteReplaceItem = new JMenuItem("С Заменой");
+        JMenuItem pasteWithoutReplaceItem = new JMenuItem("Без Замены");
+        JMenuItem copyItem = new JMenuItem("Копировать");
+        JMenuItem deleteItem = new JMenuItem("Удалить");
+
+        actionMenu.setEnabled(false);
+
+        actionMenu.add(copyItem);
+        pasteMenu.add(pasteReplaceItem);
+        pasteMenu.add(pasteWithoutReplaceItem);
+        actionMenu.add(pasteMenu);
+        actionMenu.add(deleteItem);
+
+        actionMenuBar.add(actionMenu);
+
+        // Структура
+        JMenuBar structureMenuBar = new JMenuBar();
+        JMenu structureMenu = new JMenu("Структура");
+        JMenuItem addColumnItem = new JMenuItem("Добавить столбцы");
+        JMenuItem deleteColumnItem = new JMenuItem("Удалить столбцы");
+        JMenuItem addRowItem = new JMenuItem("Добавить строки");
+        JMenuItem deleteRowItem = new JMenuItem("Удалить строки");
+
+        structureMenu.setEnabled(false);
+
+        structureMenu.add(addColumnItem);
+        structureMenu.add(deleteColumnItem);
+        structureMenu.add(addRowItem);
+        structureMenu.add(deleteRowItem);
+
+        structureMenuBar.add(structureMenu);
+
+        toolBar.add(fileMenuBar, BorderLayout.WEST);
+        toolBar.add(actionMenuBar, BorderLayout.WEST);
+        toolBar.add(structureMenuBar, BorderLayout.WEST);
+
+//        this.hexTable.getHexTable().addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                if (SwingUtilities.isRightMouseButton(e) && e.getClickCount() == 1) {
+//                    getHexTable().showPopupMenu(e);
+//                }
+//            }
+//        });
+
+        pasteReplaceItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hexTable.pasteReplace();
+            }
+        });
+
+        pasteWithoutReplaceItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hexTable.pasteWithoutReplace();
+            }
+        });
+
+        copyItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hexTable.copy();
+            }
+        });
+
+        deleteItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hexTable.delete();
+            }
+        });
+
+//        addColumn.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                hexTableServiceImpl.addColumns();
+//            }
+//        });
+        openFileItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
@@ -62,6 +145,11 @@ public class Tools {
                     try {
                         byte[] fileBytes = byteServiceImpl.readFileToByteArray(openedFile);
                         hexTableServiceImpl.displayHexData(fileBytes);
+                        saveFileItem.setEnabled(true);
+                        saveAsFileItem.setEnabled(true);
+                        structureMenu.setEnabled(true);
+                        actionMenu.setEnabled(true);
+
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
@@ -69,14 +157,14 @@ public class Tools {
             }
         });
 
-        exitItem.addActionListener(new ActionListener() {
+        exitAppItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
             }
         });
 
-        saveItem.addActionListener(new ActionListener() {
+        saveFileItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -84,7 +172,7 @@ public class Tools {
                     byte[] bytesArray = hexTableServiceImpl.getBytesArray();
 
                     // Сохраните массив байтов в файл
-                    byteServiceImpl.saveByteArrayToFile(bytesArray, openedFile.getAbsolutePath());
+                    ByteServiceImpl.saveByteArrayToFile(bytesArray, openedFile.getAbsolutePath());
 
                     System.out.println("Данные успешно сохранены в файл.");
                 } catch (IOException ex) {
@@ -95,24 +183,79 @@ public class Tools {
         });
 
 
-        addColumn.addActionListener(new ActionListener() {
-
+        saveAsFileItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Запрашиваем у пользователя количество столбцов
+                JFileChooser fileChooser = new JFileChooser();
+                int returnValue = fileChooser.showSaveDialog(null);
+
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    try {
+                        byte[] bytesArray = hexTableServiceImpl.getBytesArray();
+
+                        ByteServiceImpl.saveByteArrayToFile(bytesArray, selectedFile.getAbsolutePath());
+
+                        openedFile = selectedFile;
+
+                        System.out.println("Данные успешно сохранены в файл: " + selectedFile.getAbsolutePath());
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла.");
+                    }
+                }
+            }
+        });
+
+
+        addColumnItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int tableColumnsCount = hexTable.getHexTable().getModel().getColumnCount() - 1;
                 boolean isValidInput = false;
                 while (!isValidInput) {
-                    String columnsCountString = JOptionPane.showInputDialog("Введите количество столбцов для добавления:");
+                    String columnsCountString = JOptionPane.showInputDialog("Сейчас "
+                            + (tableColumnsCount) + " столбец (ов)\n" +
+                            "Введите количество столбцов для добавления:");
                     try {
 
                         if (columnsCountString == null) {
                             break;
                         }
-                        // Пробуем преобразовать введенную строку в число
-                        int columnsCount = Integer.parseInt(columnsCountString);
-                        if (columnsCount > 0) {
-                            // Вызываем метод добавления столбцов при правильном вводе
-                            hexTableServiceImpl.addColumns(columnsCount);
+                        int inputColumnsCount = Integer.parseInt(columnsCountString);
+                        if (inputColumnsCount > 0) {
+                            hexTableServiceImpl.addColumns(inputColumnsCount);
+                            isValidInput = true;
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Введите положительное число.");
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(null, "Введите целое число.");
+                    }
+                }
+            }
+        });
+
+        deleteColumnItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int tableColumnsCount = hexTable.getHexTable().getModel().getColumnCount() - 1;
+                boolean isValidInput = false;
+                while (!isValidInput) {
+                    String columnsCountString = JOptionPane.showInputDialog("Сейчас "
+                            + (tableColumnsCount) + " столбец (ов)\n" +
+                            "Введите количество столбцов для удаления:");
+                    try {
+
+                        if (columnsCountString == null) {
+                            break;
+                        }
+                        int inputColumnsCount = Integer.parseInt(columnsCountString);
+                        if (tableColumnsCount - inputColumnsCount <= 0) {
+                            JOptionPane.showMessageDialog(null, "Введите число меньше чем "
+                                    + (tableColumnsCount));
+                        } else if (inputColumnsCount > 0) {
+                            hexTableServiceImpl.deleteColumns(inputColumnsCount);
                             isValidInput = true;
                         } else {
                             JOptionPane.showMessageDialog(null, "Введите положительное число.");
@@ -198,18 +341,6 @@ public class Tools {
         toolBarPanel.setLayout(new BorderLayout(0, 0));
         toolBar = new JToolBar();
         toolBarPanel.add(toolBar, BorderLayout.NORTH);
-        addColumn = new JButton();
-        addColumn.setHideActionText(false);
-        addColumn.setHorizontalAlignment(0);
-        addColumn.setText("Добавить стобцы");
-        addColumn.setVerticalAlignment(0);
-        toolBar.add(addColumn);
-        addRow = new JButton();
-        addRow.setText("Добавить строки");
-        toolBar.add(addRow);
-        seacrhOnByte = new JButton();
-        seacrhOnByte.setText("Поиск по байту");
-        toolBar.add(seacrhOnByte);
     }
 
     /**
