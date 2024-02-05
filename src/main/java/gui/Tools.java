@@ -1,5 +1,8 @@
 package gui;
 
+import gui.menuBar.ActionMenuBar;
+import gui.menuBar.FileMenuBar;
+import gui.menuBar.StructureMenuBar;
 import lombok.Getter;
 import lombok.Setter;
 import service.impl.ByteServiceImpl;
@@ -16,12 +19,14 @@ import java.io.IOException;
 @Getter
 @Setter
 public class Tools {
-
     private File openedFile;
     private JPanel toolBarPanel;
     private JToolBar toolBar;
     private ByteServiceImpl byteServiceImpl;
     private HexTableServiceImpl hexTableServiceImpl;
+    private FileMenuBar fileMenuBar;
+    private ActionMenuBar actionMenuBar;
+    private StructureMenuBar structureMenuBar;
 
     private HexTable hexTable;
 
@@ -30,151 +35,88 @@ public class Tools {
         this.hexTable = hexTable;  // Установка переданного HexTable
         this.byteServiceImpl = new ByteServiceImpl();
         this.hexTableServiceImpl = new HexTableServiceImpl(hexTable);
+
         $$$setupUI$$$();
         this.toolBar.setFloatable(false);
 
-        JMenuBar fileMenuBar = new JMenuBar();
-        JMenu fileMenu = new JMenu("Файл");
-        JMenuItem openFileItem = new JMenuItem("Открыть");
-        JMenuItem saveFileItem = new JMenuItem("Сохранить");
-        JMenuItem saveAsFileItem = new JMenuItem("Сохранить как");
-        JMenuItem exitAppItem = new JMenuItem("Выход");
+        fileMenuBar = new FileMenuBar();
+        actionMenuBar = new ActionMenuBar();
+        structureMenuBar = new StructureMenuBar();
 
-        saveFileItem.setEnabled(false);
-        saveAsFileItem.setEnabled(false);
+        toolBar.add(fileMenuBar.getFileMenuBar(), BorderLayout.WEST);
+        toolBar.add(actionMenuBar.getActionMenuBar(), BorderLayout.WEST);
+        toolBar.add(structureMenuBar.getStructureMenuBar(), BorderLayout.WEST);
 
-        fileMenu.add(openFileItem);
-        fileMenu.add(saveFileItem);
-        fileMenu.add(saveAsFileItem);
-        fileMenu.addSeparator();
-        fileMenu.add(exitAppItem);
-        fileMenuBar.add(fileMenu);
-
-
-        // Создание меню "Инструменты"
-        JMenuBar actionMenuBar = new JMenuBar();
-        JMenu actionMenu = new JMenu("Данные");
-        JMenu pasteMenu = new JMenu("Вставить");
-
-        JMenuItem pasteReplaceItem = new JMenuItem("С Заменой");
-        JMenuItem pasteWithoutReplaceItem = new JMenuItem("Без Замены");
-        JMenuItem copyItem = new JMenuItem("Копировать");
-        JMenuItem deleteItem = new JMenuItem("Удалить");
-
-        actionMenu.setEnabled(false);
-
-        actionMenu.add(copyItem);
-        pasteMenu.add(pasteReplaceItem);
-        pasteMenu.add(pasteWithoutReplaceItem);
-        actionMenu.add(pasteMenu);
-        actionMenu.add(deleteItem);
-
-        actionMenuBar.add(actionMenu);
-
-        // Структура
-        JMenuBar structureMenuBar = new JMenuBar();
-        JMenu structureMenu = new JMenu("Структура");
-        JMenuItem addColumnItem = new JMenuItem("Добавить столбцы");
-        JMenuItem deleteColumnItem = new JMenuItem("Удалить столбцы");
-        JMenuItem addRowItem = new JMenuItem("Добавить строки");
-        JMenuItem deleteRowItem = new JMenuItem("Удалить строки");
-
-        structureMenu.setEnabled(false);
-
-        structureMenu.add(addColumnItem);
-        structureMenu.add(deleteColumnItem);
-        structureMenu.add(addRowItem);
-        structureMenu.add(deleteRowItem);
-
-        structureMenuBar.add(structureMenu);
-
-        toolBar.add(fileMenuBar, BorderLayout.WEST);
-        toolBar.add(actionMenuBar, BorderLayout.WEST);
-        toolBar.add(structureMenuBar, BorderLayout.WEST);
-
-//        this.hexTable.getHexTable().addMouseListener(new MouseAdapter() {
+//        fileMenuBar.getOpenFileItem().addActionListener(new ActionListener() {
 //            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                if (SwingUtilities.isRightMouseButton(e) && e.getClickCount() == 1) {
-//                    getHexTable().showPopupMenu(e);
+//            public void actionPerformed(ActionEvent e) {
+//                JFileChooser fileChooser = new JFileChooser();
+//                int returnValue = fileChooser.showOpenDialog(null);
+//                if (returnValue == JFileChooser.APPROVE_OPTION) {
+//                    openedFile = fileChooser.getSelectedFile(); // Сохранение открытого файла
+//                    try {
+//                        byte[] fileBytes = byteServiceImpl.readFileToByteArray(openedFile);
+//                        hexTableServiceImpl.displayHexData(fileBytes);
+//                        fileMenuBar.getSaveFileItem().setEnabled(true);
+//                        fileMenuBar.getSaveAsFileItem().setEnabled(true);
+//                        structureMenu.setEnabled(true);
+//                        actionMenu.setEnabled(true);
+//
+//                    } catch (IOException ex) {
+//                        ex.printStackTrace();
+//                    }
 //                }
 //            }
 //        });
 
-        pasteReplaceItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                hexTable.pasteReplace();
-            }
-        });
+        fileMenuBar.getOpenFileItem().addActionListener(actionEvent -> {
+            if (hexTable.isTableModified()) {
+                int choice = JOptionPane.showConfirmDialog(null,
+                        "Сохранить изменения перед открытием нового файла?",
+                        "Предупреждение", JOptionPane.YES_NO_OPTION);
 
-        pasteWithoutReplaceItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                hexTable.pasteWithoutReplace();
-            }
-        });
-
-        copyItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                hexTable.copy();
-            }
-        });
-
-        deleteItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                hexTable.delete();
-            }
-        });
-
-//        addColumn.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                hexTableServiceImpl.addColumns();
-//            }
-//        });
-        openFileItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                int returnValue = fileChooser.showOpenDialog(null);
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    openedFile = fileChooser.getSelectedFile(); // Сохранение открытого файла
-                    try {
-                        byte[] fileBytes = byteServiceImpl.readFileToByteArray(openedFile);
-                        hexTableServiceImpl.displayHexData(fileBytes);
-                        saveFileItem.setEnabled(true);
-                        saveAsFileItem.setEnabled(true);
-                        structureMenu.setEnabled(true);
-                        actionMenu.setEnabled(true);
-
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
+                if (choice == JOptionPane.YES_OPTION) {
+                    saveChangesAndOpenFile();
+                } else if (choice == JOptionPane.NO_OPTION) {
+                    openFile();
                 }
+            } else {
+                openFile();
             }
         });
 
-        exitAppItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
+        fileMenuBar.getSaveFileItem().addActionListener(actionEvent -> {
+            try {
+                // Получите массив байтов из таблицы
+                byte[] bytesArray = hexTableServiceImpl.getBytesArray();
+
+                // Сохраните массив байтов в файл
+                byteServiceImpl.saveByteArrayToFile(bytesArray, openedFile.getAbsolutePath());
+                hexTable.setTableModified(false);
+
+                System.out.println("Данные успешно сохранены в файл.");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла.");
             }
         });
 
-        saveFileItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+
+        fileMenuBar.getSaveAsFileItem().addActionListener(actionEvent -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int returnValue = fileChooser.showSaveDialog(null);
+
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
                 try {
-                    // Получите массив байтов из таблицы
                     byte[] bytesArray = hexTableServiceImpl.getBytesArray();
 
-                    // Сохраните массив байтов в файл
-                    ByteServiceImpl.saveByteArrayToFile(bytesArray, openedFile.getAbsolutePath());
+                    byteServiceImpl.saveByteArrayToFile(bytesArray, selectedFile.getAbsolutePath());
 
-                    System.out.println("Данные успешно сохранены в файл.");
+                    openedFile = selectedFile;
+                    hexTable.setTableModified(false);
+
+                    System.out.println("Данные успешно сохранены в файл: " + selectedFile.getAbsolutePath());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла.");
@@ -182,33 +124,62 @@ public class Tools {
             }
         });
 
+        fileMenuBar.getExitAppItem().addActionListener(actionEvent -> {
+            if (hexTable.isTableModified()) {
+                int choice = JOptionPane.showConfirmDialog(null,
+                        "Сохранить изменения перед выходом?",
+                        "Предупреждение", JOptionPane.YES_NO_CANCEL_OPTION);
 
-        saveAsFileItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                int returnValue = fileChooser.showSaveDialog(null);
-
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
+                if (choice == JOptionPane.YES_OPTION) {
                     try {
+                        // Получите массив байтов из таблицы
                         byte[] bytesArray = hexTableServiceImpl.getBytesArray();
 
-                        ByteServiceImpl.saveByteArrayToFile(bytesArray, selectedFile.getAbsolutePath());
+                        // Сохраните массив байтов в файл
+                        byteServiceImpl.saveByteArrayToFile(bytesArray, openedFile.getAbsolutePath());
 
-                        openedFile = selectedFile;
-
-                        System.out.println("Данные успешно сохранены в файл: " + selectedFile.getAbsolutePath());
+                        System.out.println("Данные успешно сохранены в файл.");
+                        System.exit(0);
                     } catch (IOException ex) {
                         ex.printStackTrace();
                         JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла.");
                     }
+
+                } else if (choice == JOptionPane.NO_OPTION) {
+                    System.exit(0);
                 }
             }
         });
 
+        actionMenuBar.getPasteReplaceItem().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hexTable.pasteReplace();
+            }
+        });
 
-        addColumnItem.addActionListener(new ActionListener() {
+        actionMenuBar.getPasteWithoutReplaceItem().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hexTable.pasteWithoutReplace();
+            }
+        });
+
+        actionMenuBar.getCopyItem().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hexTable.copy();
+            }
+        });
+
+        actionMenuBar.getDeleteItem().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hexTable.delete();
+            }
+        });
+
+        structureMenuBar.getAddColumnItem().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int tableColumnsCount = hexTable.getHexTable().getModel().getColumnCount() - 1;
@@ -236,7 +207,7 @@ public class Tools {
             }
         });
 
-        deleteColumnItem.addActionListener(new ActionListener() {
+        structureMenuBar.getDeleteColumnItem().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int tableColumnsCount = hexTable.getHexTable().getModel().getColumnCount() - 1;
@@ -268,66 +239,104 @@ public class Tools {
         });
     }
 
-//    public void addColumns(int numberOfColumns) {
-//        JTable table = this.hexTable.getHexTable();
-//        DefaultTableModel model = (DefaultTableModel) table.getModel();
-//
-//        // Добавляем указанное количество столбцов
-//        for (int i = 0; i < numberOfColumns; i++) {
-//            model.addColumn(String.format("%X", model.getColumnCount()));
-//        }
-//
-//        // Переносим данные с прошлых строк
-//        Vector<Vector<Object>> dataVector = model.getDataVector();
-//        for (Vector<Object> row : dataVector) {
-//            for (int i = 0; i < numberOfColumns; i++) {
-//                row.add(null);  // Добавляем пустые ячейки для новых столбцов
+//    private void saveChangesAndExit() {
+//        if (openedFile != null) {
+//            try {
+//                byte[] bytesArray = hexTableServiceImpl.getBytesArray();
+//                ByteServiceImpl.saveByteArrayToFile(bytesArray, openedFile.getAbsolutePath());
+//                System.out.println("Данные успешно сохранены в файл.");
+//                System.exit(0);
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//                JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла.");
 //            }
+//        } else {
+//            saveAsFile();
 //        }
-//
-//        model.fireTableStructureChanged();
 //    }
 
-//    public void addColumns(int numberOfColumns) {
-//        JTable table = this.hexTable.getHexTable();
-//        DefaultTableModel model = (DefaultTableModel) table.getModel();
-//
-//        int rowCount = model.getRowCount();
-//        int columnCount = model.getColumnCount();
-//
-//        // Добавляем указанное количество столбцов
-//        for (int i = 0; i < numberOfColumns; i++) {
-//            model.addColumn(String.format("%X", columnCount + i));
-//        }
-//
-//        // Переносим данные из следующих строк в новые столбцы
-//        for (int i = 0; i < rowCount; i++) {
-//            Vector<Object> rowData = (Vector<Object>) model.getDataVector().get(i);
-//            for (int j = 0; j < numberOfColumns; j++) {
-//                // Копируем значение из соответствующей ячейки
-//                int columnIndex = columnCount + j;
-//                if (columnIndex < rowData.size()) {
-//                    rowData.add(rowData.get(columnIndex));
-//                } else {
-//                    rowData.add(null);  // Если данных нет, добавляем пустую ячейку
-//                }
-//            }
-//
-//        }
-//
-//        // Устанавливаем одинаковую ширину столбцов
-//        int columnWidth = table.getPreferredSize().width / model.getColumnCount();
-//        for (int i = 0; i < model.getColumnCount(); i++) {
-//            table.getColumnModel().getColumn(i).setPreferredWidth(columnWidth);
-//        }
-//
-//        // Добавляем горизонтальный скролл
-//        JScrollPane scrollPane = (JScrollPane) table.getParent().getParent();
-//        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-//
-//        table.repaint();
-//    }
+    private void saveAsFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showSaveDialog(null);
 
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                byte[] bytesArray = hexTableServiceImpl.getBytesArray();
+                byteServiceImpl.saveByteArrayToFile(bytesArray, selectedFile.getAbsolutePath());
+
+                openedFile = selectedFile;
+
+                System.out.println("Данные успешно сохранены в файл: " + selectedFile.getAbsolutePath());
+                System.exit(0);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла.");
+            }
+        }
+    }
+
+    public void handleExit() {
+        if (hexTable.isTableModified()) {
+            int choice = JOptionPane.showConfirmDialog(null,
+                    "Сохранить изменения перед выходом?",
+                    "Предупреждение", JOptionPane.YES_NO_OPTION);
+
+            if (choice == JOptionPane.YES_OPTION) {
+                try {
+                    // Получите массив байтов из таблицы
+                    byte[] bytesArray = hexTableServiceImpl.getBytesArray();
+
+                    // Сохраните массив байтов в файл
+                    byteServiceImpl.saveByteArrayToFile(bytesArray, openedFile.getAbsolutePath());
+                    System.out.println("Данные успешно сохранены в файл.");
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла.");
+                }
+            }
+        }
+    }
+
+    private void saveChangesAndOpenFile() {
+        saveChanges();  // Метод, сохраняющий изменения
+        openFile();
+    }
+
+    private void saveChanges() {
+        try {
+            // Получите массив байтов из таблицы
+            byte[] bytesArray = hexTableServiceImpl.getBytesArray();
+
+            // Сохраните массив байтов в файл
+            byteServiceImpl.saveByteArrayToFile(bytesArray, openedFile.getAbsolutePath());
+
+            System.out.println("Данные успешно сохранены в файл.");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Ошибка при сохранении файла.");
+        }
+    }
+
+    private void openFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showOpenDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            openedFile = fileChooser.getSelectedFile(); // Сохранение открытого файла
+            try {
+                byte[] fileBytes = byteServiceImpl.readFileToByteArray(openedFile);
+                hexTableServiceImpl.displayHexData(fileBytes);
+                fileMenuBar.getSaveFileItem().setEnabled(true);
+                fileMenuBar.getSaveAsFileItem().setEnabled(true);
+                structureMenuBar.getStructureMenu().setEnabled(true);
+                actionMenuBar.getActionMenu().setEnabled(true);
+                hexTable.setTableModified(false);  // Сброс флага изменений после успешного открытия файла
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
 
     /**
      * Method generated by IntelliJ IDEA GUI Designer
@@ -349,22 +358,4 @@ public class Tools {
     public JComponent $$$getRootComponent$$$() {
         return toolBarPanel;
     }
-
-
-//    private ArrayList<JPanel> getPanels(){
-//        ArrayList<JPanel> panels = new ArrayList<JPanel>();
-//        panels.add(this.getToolBarPanel());
-//        panels.add(this.table1.getTablePanel());
-//        return panels;
-//    }
-
-
-//    private ArrayList<Component> getComponents() {
-//        ArrayList<Component> components = new ArrayList<Component>();
-//        components.add(this.getToolBarPanel());
-//        components.add(this.getHexTable().getTablePanel());
-//        return components;
-//    }
-
-
 }

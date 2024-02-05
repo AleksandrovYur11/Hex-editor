@@ -1,11 +1,15 @@
 package gui;
 
+;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import lombok.Getter;
 import lombok.Setter;
+import model.HexTableModel;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -17,6 +21,7 @@ import java.nio.ByteBuffer;
 @Getter
 @Setter
 public class HexTable {
+    private boolean isTableModified = false;
     private JPanel tablePanel;
     private JTable hexTable;
     private JScrollPane scrollTable;
@@ -24,6 +29,7 @@ public class HexTable {
     private JLabel selectedByteLabel;
 
     private JMenuBar actionMenuBar;
+
     private JMenuBar structureMenuBar;
 
     private Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -36,42 +42,7 @@ public class HexTable {
         this.hexTable.setCellSelectionEnabled(true);
         this.hexTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-//        actionMenuBar = new JMenuBar();
-//        JMenu actionMenu = new JMenu("Данные");
-//
-//// Создание подменю "Копировать"
-////        JMenuBar copyMenuBar = new JMenuBar();
-//        JMenu pasteMenu = new JMenu("Вставить");
-//
-//// Создание пунктов подменю "Копировать"
-//        JMenuItem pasteReplaceItem = new JMenuItem("С Заменой");
-//        JMenuItem pasteWithoutReplaceItem = new JMenuItem("Без Замены");
-//        JMenuItem copyItem = new JMenuItem("Копировать");
-//        JMenuItem deleteItem = new JMenuItem("Удалить");
-//
-//// Добавление пунктов в подменю "Копировать"
-//        actionMenu.add(copyItem);
-//        pasteMenu.add(pasteReplaceItem);
-//        pasteMenu.add(pasteWithoutReplaceItem);
-//        actionMenu.add(pasteMenu);
-//        actionMenu.add(deleteItem);
-//
-//// Добавление меню "Инструменты" в панель меню
-//        actionMenuBar.add(actionMenu);
-//
-//
-//        structureMenuBar = new JMenuBar();
-//        JMenu structureMenu = new JMenu("Структура");
-//        JMenuItem addColumnItem = new JMenuItem("Добавить столбцы");
-//        JMenuItem deleteColumnItem = new JMenuItem("Удалить столбцы");
-//        JMenuItem addRowItem = new JMenuItem("Добавить строки");
-//        JMenuItem deleteRowItem = new JMenuItem("Удалить строки");
-//
-//        structureMenu.add(addColumnItem);
-//        structureMenu.add(deleteColumnItem);
-//        structureMenu.add(addRowItem);
-//        structureMenuBar.add(deleteRowItem);
-
+        this.hexTable.setModel(new HexTableModel());
 
         this.hexTable.addKeyListener(new KeyAdapter() {
             @Override
@@ -114,18 +85,6 @@ public class HexTable {
         selectedByteLabel.setText("Выбранный байт: ");
 //        conversionPanel.add(selectedByteLabel);
 
-        hexTable.addKeyListener(new KeyAdapter() {
-            public void keyPressed(KeyEvent evt) {
-                handleTableKeyPress(evt);
-            }
-        });
-
-        hexTable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                handleTableClick(e);
-            }
-        });
 
         hexTable.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent evt) {
@@ -154,51 +113,6 @@ public class HexTable {
             updateSelectedByteLabel(row, col);
         }
     }
-
-//    public void addMouseListenerToForm(MouseAdapter mouseAdapter) {
-//        tablePanel.addMouseListener(mouseAdapter);
-//    }
-//
-//    public void handleFormLeftClick(MouseEvent e) {
-//        if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
-//            showPopupMenu(e);
-//        }
-//    }
-
-//    public void showPopupMenu(MouseEvent e) {
-//        JPopupMenu popupMenu = new JPopupMenu();
-//
-//        JMenuItem copyItem = new JMenuItem("Копировать");
-//        popupMenu.add(copyItem);
-//
-//        copyItem.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent actionEvent) {
-//                handleCopy();
-//            }
-//        });
-//
-//        JMenuItem pasteItem = new JMenuItem("Вставить");
-//        popupMenu.add(pasteItem);
-//        pasteItem.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent actionEvent) {
-//                handlePaste();
-//            }
-//        });
-//
-//        JMenuItem deleteItem = new JMenuItem("Удалить");
-//        popupMenu.add(deleteItem);
-//
-//        deleteItem.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent actionEvent) {
-//                handleDelete();
-//            }
-//        });
-//
-//        popupMenu.show(e.getComponent(), e.getX(), e.getY());
-//    }
 
     private void handleTableKeyPress(KeyEvent evt) {
         if (evt.isControlDown()) {
@@ -253,6 +167,15 @@ public class HexTable {
             // Обновляем метку
             selectedByteLabel.setText("Выбранный байт: " + (isSigned ? decimalValue : (decimalValue & 0xFFFFFFFFL)));
         }
+
+
+        hexTable.getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                // При изменениях в таблице устанавливаем флаг изменений
+                isTableModified = true;
+            }
+        });
     }
 
     private byte[] hexStringToByteArray(String hex) {
@@ -266,6 +189,30 @@ public class HexTable {
     }
     //-----------------------------
 
+//    public void copy() {
+//        int selectedRowCount = hexTable.getSelectedRowCount();
+//        int selectedColumnCount = hexTable.getSelectedColumnCount();
+//
+//        if (selectedRowCount > 0 && selectedColumnCount > 0) {
+//            StringBuilder copiedData = new StringBuilder();
+//
+//            int[] selectedRows = hexTable.getSelectedRows();
+//            int[] selectedColumns = hexTable.getSelectedColumns();
+//
+//            DefaultTableModel model = (DefaultTableModel) hexTable.getModel();
+//
+//            for (int i : selectedRows) {
+//                for (int j : selectedColumns) {
+//                    copiedData.append(model.getValueAt(i, j)).append("\t");
+//                }
+//                copiedData.append("\n");
+//            }
+//
+//            StringSelection stringSelection = new StringSelection(copiedData.toString());
+//            clipboard.setContents(stringSelection, null);
+//        }
+//    }
+
     public void copy() {
         int selectedRowCount = hexTable.getSelectedRowCount();
         int selectedColumnCount = hexTable.getSelectedColumnCount();
@@ -276,11 +223,16 @@ public class HexTable {
             int[] selectedRows = hexTable.getSelectedRows();
             int[] selectedColumns = hexTable.getSelectedColumns();
 
-            DefaultTableModel model = (DefaultTableModel) hexTable.getModel();
+            HexTableModel model = (HexTableModel) hexTable.getModel();
 
             for (int i : selectedRows) {
                 for (int j : selectedColumns) {
-                    copiedData.append(model.getValueAt(i, j)).append("\t");
+                    Object cellValue = model.getValueAt(i, j);
+
+                    // Проверяем, что ячейка не null и не пуста
+                    if (cellValue != null && !cellValue.toString().isEmpty()) {
+                        copiedData.append(cellValue).append("\t");
+                    }
                 }
                 copiedData.append("\n");
             }
@@ -368,7 +320,6 @@ public class HexTable {
         }
     }
 
-
     /**
      * Method generated by IntelliJ IDEA GUI Designer
      * >>> IMPORTANT!! <<<
@@ -399,8 +350,11 @@ public class HexTable {
         return tablePanel;
     }
 
-    //    private void createUIComponents() {
-//        this.scrollTable = new JScrollPane(this.hexTable);
-//        scrollTable.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-//    }
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
 }

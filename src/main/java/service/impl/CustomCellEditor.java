@@ -22,19 +22,19 @@ public class CustomCellEditor extends DefaultCellEditor {
     }
 
     private static class HexDocumentFilter extends DocumentFilter {
-        @Override
-        public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
-                throws BadLocationException {
-            Document doc = fb.getDocument();
-            StringBuilder sb = new StringBuilder();
-            sb.append(doc.getText(0, doc.getLength()));
-            sb.insert(offset, string);
 
-            if (isHex(sb.toString()) && sb.length() <= 2) {
-                super.insertString(fb, offset, string, attr);
-            }
-        }
-
+        //        @Override
+//        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+//                throws BadLocationException {
+//            Document doc = fb.getDocument();
+//            StringBuilder sb = new StringBuilder();
+//            sb.append(doc.getText(0, doc.getLength()));
+//            sb.replace(offset, offset + length, text);
+//            String upperCaseValue = sb.toString().toUpperCase();
+//            if (text.isEmpty() || (isHex(sb.toString()) && upperCaseValue.length() <= 2)) {
+//                super.replace(fb, offset, length, upperCaseValue, attrs);
+//            }
+//        }
         @Override
         public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
                 throws BadLocationException {
@@ -42,9 +42,10 @@ public class CustomCellEditor extends DefaultCellEditor {
             StringBuilder sb = new StringBuilder();
             sb.append(doc.getText(0, doc.getLength()));
             sb.replace(offset, offset + length, text);
+            String upperCaseValue = sb.toString().toUpperCase();
 
-            if (isHex(sb.toString()) && sb.length() <= 2) {
-                super.replace(fb, offset, length, text, attrs);
+            if (text.isEmpty() || (isHex(upperCaseValue) && upperCaseValue.length() <= 2)) {
+                super.replace(fb, 0, doc.getLength(), upperCaseValue, attrs);
             }
         }
 
@@ -55,3 +56,50 @@ public class CustomCellEditor extends DefaultCellEditor {
         }
     }
 }
+
+//НЕ ВСТАВЛЯЕТ ХОТЯ БЫ ЧИСЛА
+//public class CustomCellEditor extends DefaultCellEditor {
+//
+//    private static boolean allowEditing = true;
+//
+//    public CustomCellEditor() {
+//        super(new JTextField());
+//        JTextField textField = (JTextField) getComponent();
+//        textField.setHorizontalAlignment(JTextField.CENTER);
+//
+//        PlainDocument doc = (PlainDocument) textField.getDocument();
+//        doc.setDocumentFilter(new HexDocumentFilter());
+//    }
+//
+//    private static class HexDocumentFilter extends DocumentFilter {
+//        @Override
+//        public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+//                throws BadLocationException {
+//            if (allowEditing) {
+//                super.insertString(fb, offset, string, attr);
+//            }
+//        }
+//
+//        @Override
+//        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+//                throws BadLocationException {
+//            if (allowEditing) {
+//                super.replace(fb, offset, length, text, attrs);
+//            }
+//        }
+//
+//        private boolean isHex(String str) {
+//            Pattern pattern = Pattern.compile("^[0-9A-Fa-f]+$");
+//            Matcher matcher = pattern.matcher(str);
+//            return matcher.matches();
+//        }
+//    }
+//
+//    @Override
+//    public boolean stopCellEditing() {
+//        allowEditing = false;
+//        boolean result = super.stopCellEditing();
+//        allowEditing = true;
+//        return result;
+//    }
+//}

@@ -5,14 +5,16 @@ import gui.Tools;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-public class Main {
-
+public class Main extends  JFrame{
+    private JFrame frame;
     private JPanel mainPanel;
 
     private HexTable hexTable;
 
-    private JToolBar toolBar;
+    private Tools toolBar;
 
     public Main() {
         this.mainPanel = new JPanel();
@@ -20,6 +22,13 @@ public class Main {
         createHexTable();
         createToolsManager();
         createMainFrame();
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                toolBar.handleExit();
+            }
+        });
     }
 
     private void createHexTable() {
@@ -38,7 +47,7 @@ public class Main {
 
     private void createMainFrame() {
         JFrame frame = new JFrame("Hex editor tool");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -46,6 +55,7 @@ public class Main {
         int width = screenSize.width / 2;
         int height = screenSize.height / 2;
         frame.setSize(width, height);
+        this.frame = frame;
 
         frame.setLocationRelativeTo(null);
         frame.setContentPane(this.mainPanel);
@@ -54,6 +64,7 @@ public class Main {
 
     private void createToolsManager() {
         Tools toolsManager = new Tools(hexTable);
+        toolBar = toolsManager;
         mainPanel.add(toolsManager.getToolBarPanel(), BorderLayout.NORTH);
     }
 

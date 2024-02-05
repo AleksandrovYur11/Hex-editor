@@ -1,6 +1,7 @@
 package service.impl;
 
 import gui.HexTable;
+import model.HexTableModel;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -18,7 +19,7 @@ public class HexTableServiceImpl {
     public void displayHexData(byte[] fileBytes) {
         JTable table = this.hexTable.getHexTable();
         Object[] columnHeader = new Object[16];
-        DefaultTableModel tableModel = new DefaultTableModel();
+        HexTableModel tableModel =  new HexTableModel();
         tableModel.addColumn("Offset");
 
         for (int i = 0; i < 16; i++) {
@@ -57,7 +58,10 @@ public class HexTableServiceImpl {
         for (int i = 0; i < columnCount - numberOfColumns; i++) {
             newColumns.add(String.format("%X", i));
         }
-        DefaultTableModel newModel = new DefaultTableModel(newColumns, 0);
+//        DefaultTableModel newModel = new DefaultTableModel(newColumns, 0);
+        HexTableModel newModel = new HexTableModel();
+        newModel.setColumnIdentifiers(newColumns);
+
 
         Vector<String> rowData = new Vector<>();
         for (int i = 0; i < rowCount; i++) {
@@ -104,24 +108,24 @@ public class HexTableServiceImpl {
 
     public void addColumns(int numberOfColumns) {
         JTable table = this.hexTable.getHexTable();
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        HexTableModel model = (HexTableModel) table.getModel();
 
         int rowCount = model.getRowCount();
         int columnCount = model.getColumnCount() - 1;
 
-        // Создаем новый вектор столбцов
         Vector<String> newColumns = new Vector<>();
         newColumns.add("Offset");
 
         for (int i = 0; i < columnCount + numberOfColumns; i++) {
             newColumns.add(String.format("%X", i));
         }
-        DefaultTableModel newModel = new DefaultTableModel(newColumns, 0);
+//        HexTableModel newModel = (HexTableModel) new DefaultTableModel(newColumns, 0);
+        HexTableModel newModel = new HexTableModel();
+        newModel.setColumnIdentifiers(newColumns);
 
 
         Vector<String> rowData = new Vector<>();
         for (int i = 0; i < rowCount; i++) {
-//            rowData[i] = String.format("%08X", i * 16) + ": ";
             for (int j = 1; j <= columnCount; j++) {
                 String cellData = (String) model.getValueAt(i, j);
                 if (cellData == null){
@@ -129,16 +133,7 @@ public class HexTableServiceImpl {
                 } else {
                     rowData.add((String) model.getValueAt(i, j));
                 }
-//                rowData.add((String) model.getValueAt(i, j));
             }
-//            String[] newRowData = {address};
-//
-//            for (int k = 0; i + k <  && k < columnCount + numberOfColumns - 1; k++) {
-//                newRowData = Arrays.copyOf(rowData, rowData.length + 1);
-//                newRowData[newRowData.length - 1] = rowData[k]; // Пустые значения для новых столбцов
-//            }
-
-//            newModel.addRow(newRowData);
         }
 
         int newRowCount = (int) Math.ceil((double) rowData.size() / (double) (newModel.getColumnCount() - 1));
@@ -147,8 +142,7 @@ public class HexTableServiceImpl {
             Vector<String> newRowData = new Vector<>();
             newRowData.add(String.format("%08X", i * 16) + ": ");
             for (int k = 0; k < model.getColumnCount() - 1 + numberOfColumns && index < rowData.size(); k++) {
-//                newRowData = Arrays.copyOf(rowData, rowData.size() + 1);
-                newRowData.add(rowData.get(index)); // Пустые значения для новых столбцов
+                newRowData.add(rowData.get(index));
                 index++;
             }
             newModel.addRow(newRowData);
@@ -161,7 +155,7 @@ public class HexTableServiceImpl {
 
     public void addRows(int numberOfColumns) {
         JTable table = this.hexTable.getHexTable();
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        HexTableModel model = (HexTableModel) table.getModel();
 
         int rowCount = model.getRowCount();
         int columnCount = model.getColumnCount() - 1;
@@ -175,7 +169,11 @@ public class HexTableServiceImpl {
         }
 
         // Создаем новую модель с новыми столбцами
-        DefaultTableModel newModel = new DefaultTableModel(newColumns, 0);
+//        HexTableModel newModel = (HexTableModel) new DefaultTableModel(newColumns, 0);
+        HexTableModel newModel = new HexTableModel();
+        newModel.setColumnIdentifiers(newColumns);
+
+
 
 
         Vector<String> rowData = new Vector<>();
@@ -262,28 +260,64 @@ public class HexTableServiceImpl {
 //        return bytesArray;
 //    }
 
+//    public byte[] getBytesArray() {
+//        JTable table = this.hexTable.getHexTable();
+//        HexTableModel model = (HexTableModel) table.getModel();
+//
+//        int rowCount = model.getRowCount();
+//        int columnCount = model.getColumnCount() - 1;
+//
+//        Vector<Byte> byteVector = new Vector<>();
+//
+//        for (int i = 0; i < rowCount; i++) {
+//            for (int j = 1; j <= columnCount; j++) {
+//                String hexValue = (String) model.getValueAt(i, j);
+//                byte[] cellBytes = hexStringToByteArray(hexValue);
+//
+//                if (cellBytes != null) {
+//                    for (byte b : cellBytes) {
+//                        byteVector.add(b);
+//                    }
+//                }
+//            }
+//        }
+//        byte[] bytesArray = new byte[byteVector.size()];
+//        for (int i = 0; i < byteVector.size(); i++) {
+//            bytesArray[i] = byteVector.get(i);
+//        }
+//
+//        return bytesArray;
+//    }
+
+
     public byte[] getBytesArray() {
         JTable table = this.hexTable.getHexTable();
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        HexTableModel model = (HexTableModel) table.getModel();
 
         int rowCount = model.getRowCount();
         int columnCount = model.getColumnCount() - 1;
-        int index = 0;
 
         Vector<Byte> byteVector = new Vector<>();
 
         for (int i = 0; i < rowCount; i++) {
             for (int j = 1; j <= columnCount; j++) {
                 String hexValue = (String) model.getValueAt(i, j);
-                byte[] cellBytes = hexStringToByteArray(hexValue);
 
-                if (cellBytes != null) {
-                    for (byte b : cellBytes) {
-                        byteVector.add(b);
+                if (hexValue != null && !hexValue.isEmpty()) {
+                    byte[] cellBytes = hexStringToByteArray(hexValue);
+
+                    if (cellBytes != null) {
+                        for (byte b : cellBytes) {
+                            byteVector.add(b);
+                        }
+                    } else {
+                        // Добавить значение по умолчанию (например, 0) для отсутствующего числа
+                        byteVector.add((byte) 0);
                     }
                 }
             }
         }
+
         byte[] bytesArray = new byte[byteVector.size()];
         for (int i = 0; i < byteVector.size(); i++) {
             bytesArray[i] = byteVector.get(i);
@@ -292,10 +326,13 @@ public class HexTableServiceImpl {
         return bytesArray;
     }
 
-
     private static byte[] hexStringToByteArray(String hex) {
         if (hex == null) {
             return null;
+        }
+
+        if (hex.length() % 2 != 0) {
+            hex = "0" + hex;
         }
 
         int len = hex.length();
@@ -317,17 +354,23 @@ public class HexTableServiceImpl {
                                                            boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setHorizontalAlignment(SwingConstants.CENTER);
+
+                Font originalFont = c.getFont();
+                Font newFont = new Font(originalFont.getName(), Font.BOLD, 16); // Замените 16 на нужный размер
+                c.setFont(newFont);
                 return c;
             }
         };
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setCellRenderer(defaultRenderer);
-            if (i > 0) {
+            if (i == 0) {
+                table.getColumnModel().getColumn(i).setMinWidth(100);
+                table.getColumnModel().getColumn(i).setMaxWidth(100);
+            } else {
                 table.getColumnModel().getColumn(i).setMinWidth(40);
                 table.getColumnModel().getColumn(i).setMaxWidth(40);
             }
         }
     }
-
 }
 

@@ -54,20 +54,42 @@ public class ByteServiceImpl {
 //    }
 
 
-    public static void saveByteArrayToFile(byte[] fileBytes, String filePath) throws IOException {
-        Path path = Paths.get(filePath);
-        int offset = 0;
-        int bufferSize = 8192;
+//    public void saveByteArrayToFile(byte[] fileBytes, String filePath) throws IOException {
+//        Path path = Paths.get(filePath);
+//        int offset = 0;
+//        int bufferSize = 8192;
+//
+//        try (WritableByteChannel channel = Files.newByteChannel(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+//            while (offset < fileBytes.length) {
+//                int bytesToWrite = Math.min(bufferSize, fileBytes.length - offset);
+//                ByteBuffer buffer = ByteBuffer.wrap(fileBytes, offset, bytesToWrite);
+//                channel.write(buffer);
+//
+//                offset += bytesToWrite;
+//            }
+//        }
+//    }
 
-        try (WritableByteChannel channel = Files.newByteChannel(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-            while (offset < fileBytes.length) {
-                int bytesToWrite = Math.min(bufferSize, fileBytes.length - offset);
-                ByteBuffer buffer = ByteBuffer.wrap(fileBytes, offset, bytesToWrite);
-                channel.write(buffer);
+//    public void saveByteArrayToFile(byte[] fileBytes, String filePath) throws IOException {
+//        Path path = Paths.get(filePath);
+//
+//        try (WritableByteChannel channel = Files.newByteChannel(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+//            ByteBuffer buffer = ByteBuffer.allocate(fileBytes.length);
+//            buffer.put(fileBytes);
+//            buffer.flip();  // Подготавливаем буфер к чтению
+//
+//            channel.write(buffer);
+//        }
+//
+//
+//
+//    }
 
-                offset += bytesToWrite;
-            }
+    public void saveByteArrayToFile(byte[] fileBytes, String filePath) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(filePath)) {
+            fos.write(fileBytes);
         }
     }
+
 
 }
