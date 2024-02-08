@@ -32,7 +32,7 @@ public class Tools {
 
 
     public Tools(HexTable hexTable) {
-        this.hexTable = hexTable;  // Установка переданного HexTable
+        this.hexTable = hexTable;
         this.byteServiceImpl = new ByteServiceImpl();
         this.hexTableServiceImpl = new HexTableServiceImpl(hexTable);
 
@@ -46,6 +46,7 @@ public class Tools {
         toolBar.add(fileMenuBar.getFileMenuBar(), BorderLayout.WEST);
         toolBar.add(actionMenuBar.getActionMenuBar(), BorderLayout.WEST);
         toolBar.add(structureMenuBar.getStructureMenuBar(), BorderLayout.WEST);
+        hexTable.setByteService(this.byteServiceImpl);
 
 //        fileMenuBar.getOpenFileItem().addActionListener(new ActionListener() {
 //            @Override
@@ -300,16 +301,13 @@ public class Tools {
     }
 
     private void saveChangesAndOpenFile() {
-        saveChanges();  // Метод, сохраняющий изменения
+        saveChanges();
         openFile();
     }
 
     private void saveChanges() {
         try {
-            // Получите массив байтов из таблицы
             byte[] bytesArray = hexTableServiceImpl.getBytesArray();
-
-            // Сохраните массив байтов в файл
             byteServiceImpl.saveByteArrayToFile(bytesArray, openedFile.getAbsolutePath());
 
             System.out.println("Данные успешно сохранены в файл.");
@@ -323,7 +321,10 @@ public class Tools {
         JFileChooser fileChooser = new JFileChooser();
         int returnValue = fileChooser.showOpenDialog(null);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
-            openedFile = fileChooser.getSelectedFile(); // Сохранение открытого файла
+            openedFile = fileChooser.getSelectedFile();
+            System.out.println(openedFile);
+            byteServiceImpl.setFile(openedFile);// Сохранение открытого файла
+            System.out.println(byteServiceImpl.getFile().toString());
             try {
                 byte[] fileBytes = byteServiceImpl.readFileToByteArray(openedFile);
                 hexTableServiceImpl.displayHexData(fileBytes);
@@ -331,7 +332,7 @@ public class Tools {
                 fileMenuBar.getSaveAsFileItem().setEnabled(true);
                 structureMenuBar.getStructureMenu().setEnabled(true);
                 actionMenuBar.getActionMenu().setEnabled(true);
-                hexTable.setTableModified(false);  // Сброс флага изменений после успешного открытия файла
+                hexTable.setTableModified(false);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -358,4 +359,5 @@ public class Tools {
     public JComponent $$$getRootComponent$$$() {
         return toolBarPanel;
     }
+
 }

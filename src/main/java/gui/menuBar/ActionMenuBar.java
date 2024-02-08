@@ -36,24 +36,4 @@ public class ActionMenuBar {
 
         actionMenuBar.add(actionMenu);
     }
-
-    // Создание меню "Инструменты"
-//        JMenuBar actionMenuBar = new JMenuBar();
-//        JMenu actionMenu = new JMenu("Данные");
-//        JMenu pasteMenu = new JMenu("Вставить");
-//
-//        JMenuItem pasteReplaceItem = new JMenuItem("С Заменой");
-//        JMenuItem pasteWithoutReplaceItem = new JMenuItem("Без Замены");
-//        JMenuItem copyItem = new JMenuItem("Копировать");
-//        JMenuItem deleteItem = new JMenuItem("Удалить");
-//
-//        actionMenu.setEnabled(false);
-//
-//        actionMenu.add(copyItem);
-//        pasteMenu.add(pasteReplaceItem);
-//        pasteMenu.add(pasteWithoutReplaceItem);
-//        actionMenu.add(pasteMenu);
-//        actionMenu.add(deleteItem);
-//
-//        actionMenuBar.add(actionMenu);
 }

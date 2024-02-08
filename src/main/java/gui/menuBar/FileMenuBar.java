@@ -33,7 +33,4 @@ public class FileMenuBar {
         fileMenu.add(exitAppItem);
         fileMenuBar.add(fileMenu);
     }
-
-
-
 }

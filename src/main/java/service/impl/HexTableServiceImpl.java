@@ -45,6 +45,55 @@ public class HexTableServiceImpl {
         hexTable.getHexTable().changeSelection(0,1, false, false);
     }
 
+
+    public void displayHexData(byte[] fileBytes, String clipboardData) {
+        JTable table = this.hexTable.getHexTable();
+        HexTableModel tableModel = new HexTableModel();
+        tableModel.addColumn("Offset");
+
+        for (int i = 0; i < 16; i++) {
+            tableModel.addColumn(String.format("%X", i));
+        }
+
+        int lineCounter = 0;
+        int rowCount = fileBytes.length / 16 + (fileBytes.length % 16 == 0 ? 0 : 1); // Количество строк для файла
+
+        String[] clipboardRows = clipboardData.split("\n");
+        int clipboardRowCount = clipboardRows.length;
+
+        if (clipboardRowCount > rowCount) {
+            rowCount = clipboardRowCount;
+        }
+
+        for (int i = 0; i < rowCount; i++) {
+            String address = String.format("%08X", lineCounter) + ": ";
+
+            String[] rowData = {address};
+            for (int j = 0; j < 16; j++) {
+                if (i * 16 + j < fileBytes.length) {
+                    rowData = Arrays.copyOf(rowData, rowData.length + 1);
+                    rowData[rowData.length - 1] = String.format("%02X", fileBytes[i * 16 + j]);
+                } else if (i < clipboardRowCount) {
+                    String[] clipboardValues = clipboardRows[i].split("\t");
+                    if (j < clipboardValues.length) {
+                        rowData = Arrays.copyOf(rowData, rowData.length + 1);
+                        rowData[rowData.length - 1] = clipboardValues[j];
+                    }
+                } else {
+                    rowData = Arrays.copyOf(rowData, rowData.length + 1);
+                    rowData[rowData.length - 1] = "";
+                }
+            }
+            tableModel.addRow(rowData);
+            lineCounter += 16;
+        }
+
+        table.setModel(tableModel);
+        setTableCellRenderer();
+        hexTable.getHexTable().changeSelection(0, 1, false, false);
+    }
+
+
     public void deleteColumns(int numberOfColumns) {
         JTable table = this.hexTable.getHexTable();
         DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -160,15 +209,12 @@ public class HexTableServiceImpl {
         int rowCount = model.getRowCount();
         int columnCount = model.getColumnCount() - 1;
 
-        // Создаем новый вектор столбцов
         Vector<String> newColumns = new Vector<>();
         newColumns.add("Offset");
 
         for (int i = 0; i < columnCount + numberOfColumns; i++) {
             newColumns.add(String.format("%X", i));
         }
-
-        // Создаем новую модель с новыми столбцами
 //        HexTableModel newModel = (HexTableModel) new DefaultTableModel(newColumns, 0);
         HexTableModel newModel = new HexTableModel();
         newModel.setColumnIdentifiers(newColumns);
@@ -311,7 +357,6 @@ public class HexTableServiceImpl {
                             byteVector.add(b);
                         }
                     } else {
-                        // Добавить значение по умолчанию (например, 0) для отсутствующего числа
                         byteVector.add((byte) 0);
                     }
                 }

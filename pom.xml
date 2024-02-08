@@ -15,7 +15,6 @@
 
 
     <dependencies>
-
         <dependency>
             <groupId>com.intellij</groupId>
             <artifactId>forms_rt</artifactId>

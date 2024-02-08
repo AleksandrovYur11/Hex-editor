@@ -33,20 +33,4 @@ public class StructureMenuBar {
 
         structureMenuBar.add(structureMenu);
     }
-
-    //        JMenuBar structureMenuBar = new JMenuBar();
-//        JMenu structureMenu = new JMenu("Структура");
-//        JMenuItem addColumnItem = new JMenuItem("Добавить столбцы");
-//        JMenuItem deleteColumnItem = new JMenuItem("Удалить столбцы");
-//        JMenuItem addRowItem = new JMenuItem("Добавить строки");
-//        JMenuItem deleteRowItem = new JMenuItem("Удалить строки");
-//
-//        structureMenu.setEnabled(false);
-//
-//        structureMenu.add(addColumnItem);
-//        structureMenu.add(deleteColumnItem);
-//        structureMenu.add(addRowItem);
-//        structureMenu.add(deleteRowItem);
-//
-//        structureMenuBar.add(structureMenu);
 }
